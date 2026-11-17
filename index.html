@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Nano — Private Letter</title>
+    <!-- Tailwind CSS for responsive layout & styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display (Romantic Serif), Plus Jakarta Sans & Cairo (Modern Clean + Arabic Support) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '"Cairo"', 'sans-serif'],
+                        serif: ['"Playfair Display"', '"Cairo"', 'serif'],
+                    },
+                    colors: {
+                        roseBlush: '#fff0f5',
+                        pinkGlow: '#ff7597',
+                        deepRose: '#d6336c',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Animated Gradient & Glassmorphism Enhancements */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(-45deg, #ffffff, #ffe4ee, #ffc2d6, #fff5f8);
+            background-size: 400% 400%;
+            animation: dreamyGradient 14s ease infinite;
+        }
+
+        @keyframes dreamyGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Modern Frosted Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.68);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 25px 50px -12px rgba(255, 105, 150, 0.22),
+                0 0 30px rgba(255, 255, 255, 0.8) inset;
+        }
+
+        /* Soft Floating Animation for Main Card */
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+        }
+        .float-card {
+            animation: gentleFloat 6s ease-in-out infinite;
+        }
+
+        /* Shake Animation on Wrong Password */
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-7px); }
+            80% { transform: translateX(7px); }
+        }
+        .shake {
+            animation: shakeError 0.45s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* Pulse Glow Button */
+        .btn-romantic {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #f06595 100%);
+            box-shadow: 0 10px 25px -5px rgba(240, 101, 149, 0.5);
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .btn-romantic:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(240, 101, 149, 0.65);
+        }
+        .btn-romantic:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Typewriter Cursor */
+        .typing-cursor::after {
+            content: '|';
+            color: #f06595;
+            animation: blink 0.9s infinite;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Custom Scrollbar for long letters */
+        .letter-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .letter-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 192, 214, 0.2);
+            border-radius: 10px;
+        }
+        .letter-scroll::-webkit-scrollbar-thumb {
+            background: rgba(240, 101, 149, 0.45);
+            border-radius: 10px;
+        }
+
+        /* Padlock Shackle Animation */
+        #padlock-shackle {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: 36px 24px;
+        }
+        .unlocked-shackle {
+            transform: translateY(-6px) rotate(-22deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full flex items-center justify-center relative text-slate-800 selection:bg-pink-200 selection:text-pink-900">
+
+    <!-- Interactive Animated Hearts & Bokeh Canvas Background -->
+    <canvas id="heartsCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <!-- Soft Ambient Glowing Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-80 h-80 sm:w-[28rem] sm:h-[28rem] bg-pink-300/30 rounded-full blur-3xl pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-80 h-80 sm:w-[30rem] sm:h-[30rem] bg-white/70 rounded-full blur-3xl pointer-events-none z-0"></div>
+
+    <!-- Main Container -->
+    <main class="relative z-10 w-full max-w-lg px-4 py-8 sm:px-6 flex flex-col items-center justify-center min-h-screen">
+
+        <!-- =========================================================
+             VIEW 1: MODERN PASSWORD LOCK SCREEN
+             ========================================================= -->
+        <section id="lockScreen" class="w-full glass-card rounded-3xl p-7 sm:p-10 text-center float-card transition-all duration-700">
+            
+            <!-- Top Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-pink-200/80 shadow-sm mb-6">
+                <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+                <span class="text-xs font-semibold uppercase tracking-widest text-pink-600">Private &amp; Encrypted</span>
+            </div>
+
+            <!-- Animated SVG Padlock Icon -->
+            <div class="mx-auto w-24 h-24 rounded-3xl bg-gradient-to-br from-white to-pink-100 border border-white shadow-lg flex items-center justify-center mb-6 relative group">
+                <div class="absolute inset-0 rounded-3xl bg-pink-400/20 blur-xl group-hover:bg-pink-400/30 transition-all"></div>
+                <svg class="w-12 h-12 relative z-10" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Shackle -->
+                    <path id="padlock-shackle" d="M15 22V15C15 10.0294 19.0294 6 24 6C28.9706 6 33 10.0294 33 15V22" stroke="#ec4899" stroke-width="3.5" stroke-linecap="round"/>
+                    <!-- Lock Body -->
+                    <rect x="10" y="21" width="28" height="21" rx="7" fill="url(#lockGrad)"/>
+                    <!-- Heart Keyhole -->
+                    <path d="M24 35.5C24 35.5 18.5 31.8 18.5 28.3C18.5 26.6 19.8 25.3 21.4 25.3C22.5 25.3 23.5 25.9 24 26.8C24.5 25.9 25.5 25.3 26.6 25.3C28.2 25.3 29.5 26.6 29.5 28.3C29.5 31.8 24 35.5 24 35.5Z" fill="white"/>
+                    <defs>
+                        <linearGradient id="lockGrad" x1="10" y1="21" x2="38" y2="42" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#ff7597"/>
+                            <stop offset="1" stop-color="#e64980"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <!-- Title & Subtitle -->
+            <h1 class="font-serif text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight mb-2">
+                A Secret For <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-600">You</span>
+            </h1>
+            <p class="text-sm sm:text-base text-slate-500 mb-7 max-w-xs mx-auto leading-relaxed">
+                This message is locked just for one special person. Enter the secret password to open it.
+            </p>
+
+            <!-- Password Form -->
+            <form id="unlockForm" class="space-y-4">
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="passwordInput" 
+                        placeholder="Enter password..." 
+                        autocomplete="off"
+                        class="w-full px-5 py-4 rounded-2xl bg-white/85 border-2 border-pink-100 focus:border-pink-400 focus:bg-white focus:outline-none text-center text-lg font-semibold tracking-[0.25em] text-pink-700 placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-400 shadow-inner transition-all"
+                    />
+                    <!-- Toggle Show/Hide Password -->
+                    <button 
+                        type="button" 
+                        id="togglePasswordBtn"
+                        aria-label="Toggle password visibility"
+                        class="absolute right-3.5 top-1/2 -translate-y-1/2 p-2 text-pink-400 hover:text-pink-600 transition-colors rounded-xl"
+                    >
+                        <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Error Feedback Message -->
+                <p id="errorMessage" class="text-xs sm:text-sm font-medium text-rose-500 h-5 opacity-0 transition-opacity duration-300">
+                    Oops! Wrong password, try again my love ♥
+                </p>
+
+                <!-- Unlock Submit Button -->
+                <button 
+                    type="submit" 
+                    id="unlockBtn"
+                    class="w-full py-4 px-6 rounded-2xl btn-romantic text-white font-semibold text-base sm:text-lg tracking-wide flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <span>Unlock Letter</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Subtle Hint -->
+            <p class="mt-6 text-xs text-pink-400/90 font-medium">
+                Hint: Your special nickname ✨
+            </p>
+        </section>
+
+
+        <!-- =========================================================
+             VIEW 2: ROMANTIC LOVE LETTER REVEAL
+             ========================================================= -->
+        <section id="letterScreen" class="hidden w-full glass-card rounded-3xl p-6 sm:p-10 relative transition-all duration-700 opacity-0 scale-95">
+            
+            <!-- Top Decorative Header -->
+            <div class="flex items-center justify-between border-b border-pink-200/60 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-white shadow-md">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[11px] uppercase tracking-widest text-pink-500 font-bold block">Unlocked For</span>
+                        <h2 id="displayRecipient" class="font-serif text-xl sm:text-2xl font-bold text-slate-800">My Dearest Nano</h2>
+                    </div>
+                </div>
+
+                <!-- Lock Again Button -->
+                <button 
+                    id="lockAgainBtn"
+                    title="Lock Letter"
+                    class="p-2.5 rounded-xl bg-white/80 hover:bg-pink-50 border border-pink-100 text-pink-500 transition-all cursor-pointer"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Letter Paper Area -->
+            <div class="bg-white/75 rounded-2xl p-5 sm:p-7 border border-white shadow-inner max-h-[52vh] overflow-y-auto letter-scroll mb-6">
+                <p id="letterBody" dir="auto" class="text-slate-700 text-base sm:text-[17px] leading-relaxed whitespace-pre-line font-normal typing-cursor"></p>
+                
+                <!-- Signature (fades in after typing completes) -->
+                <div id="letterSignature" class="mt-6 pt-4 border-t border-pink-100 flex items-center justify-between opacity-0 transition-opacity duration-700">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider">Forever Yours,</p>
+                        <p id="displaySender" class="font-serif italic text-lg font-bold text-pink-600 mt-0.5">The one who loves you most ♥</p>
+                    </div>
+                    <span class="text-2xl animate-bounce">💌</span>
+                </div>
+            </div>
+
+            <!-- Interactive Bottom Action Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <!-- Send Love / Heart Burst Button -->
+                <button 
+                    id="heartBurstBtn"
+                    class="flex-1 py-3.5 px-5 rounded-2xl btn-romantic text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <svg class="w-5 h-5 fill-current animate-pulse" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>Send a Heart</span>
+                </button>
+
+                <!-- Skip Typing / Customize Letter Buttons -->
+                <button 
+                    id="skipTypingBtn"
+                    class="py-3.5 px-4 rounded-2xl bg-white/90 hover:bg-white border border-pink-200 text-pink-600 font-semibold text-sm transition-all cursor-pointer"
+                >
+                    Show All
+                </button>
+
+                <button 
+                    id="openEditModalBtn"
+                    title="Edit Letter Message"
+                    class="py-3.5 px-4 rounded-2xl bg-white/90 hover:bg-white border border-pink-200 text-slate-600 hover:text-pink-600 font-semibold text-sm transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                    <span>Edit</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================================================
+         CUSTOMIZE MESSAGE MODAL (So you can easily personalize the letter!)
+         ========================================================= -->
+    <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-pink-950/30 backdrop-blur-sm p-4">
+        <div class="glass-card bg-white/95 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl transform transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-serif text-2xl font-bold text-slate-800">Customize Your Letter</h3>
+                <button id="closeEditModalBtn" class="p-2 rounded-xl text-slate-400 hover:text-pink-600 hover:bg-pink-50 transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-pink-600 mb-1">Title / Her Name</label>
+                    <input type="text" id="editRecipientInput" class="w-full px-4 py-2.5 rounded-xl bg-pink-50/60 border border-pink-200 focus:border-pink-400 focus:outline-none text-sm font-medium text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-pink-600 mb-1">Your Love Letter (Arabic or English)</label>
+                    <textarea id="editMessageInput" rows="6" dir="auto" class="w-full px-4 py-3 rounded-xl bg-pink-50/60 border border-pink-200 focus:border-pink-400 focus:outline-none text-sm leading-relaxed text-slate-800"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-pink-600 mb-1">Your Signature</label>
+                    <input type="text" id="editSenderInput" class="w-full px-4 py-2.5 rounded-xl bg-pink-50/60 border border-pink-200 focus:border-pink-400 focus:outline-none text-sm font-medium text-slate-800">
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button id="saveLetterBtn" class="flex-1 py-3 rounded-xl btn-romantic text-white font-semibold text-sm cursor-pointer">
+                        Save &amp; Preview
+                    </button>
+                    <button id="resetLetterBtn" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm cursor-pointer">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         JAVASCRIPT: ANIMATED HEARTS CANVAS, LOCK LOGIC & TYPEWRITER
+         ========================================================= -->
+    <script>
+        /**
+         * 1. CONFIGURATION & DEFAULT ROMANTIC CONTENT
+         * You can edit the default letter directly right here in the code,
+         * or use the "Edit" button inside the webpage!
+         */
+        const SECRET_PASSWORD = "NANO"; // Password set to NANO
+
+        const DEFAULT_LETTER = {
+            recipient: "My Dearest Nano",
+            message: `From the moment you walked into my life, everything became brighter, softer, and infinitely more meaningful.\n\nYou are my favorite notification, my happiest thought, and the reason behind my biggest smiles. Every little moment with you feels like a memory I want to keep forever.\n\nNo matter how busy life gets, I always want you to remember how deeply loved, appreciated, and special you are to me — today and every single day.`,
+            sender: "Forever Yours ♥"
+        };
+
+        // Load saved custom letter from localStorage if available
+        let currentLetter = JSON.parse(localStorage.getItem('nano_love_letter')) || { ...DEFAULT_LETTER };
+
+        /**
+         * 2. MOVING ANIMATED HEARTS & BOKEH BACKGROUND (HTML5 CANVAS)
+         */
+        const canvas = document.getElementById('heartsCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let burstParticles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Pink & White Romantic Palette for Floating Elements
+        const heartColors = [
+            'rgba(255, 117, 151, 0.35)',
+            'rgba(255, 182, 203, 0.45)',
+            'rgba(255, 255, 255, 0.65)',
+            'rgba(240, 101, 149, 0.28)',
+            'rgba(255, 214, 224, 0.55)'
+        ];
+
+        class FloatingHeart {
+            constructor(initial = false) {
+                this.reset(initial);
+            }
+
+            reset(initial = false) {
+                this.x = Math.random() * canvas.width;
+                this.y = initial ? Math.random() * canvas.height : canvas.height + 30;
+                this.size = Math.random() * 16 + 8; // 8px to 24px
+                this.speedY = Math.random() * 1.1 + 0.4;
+                this.speedX = (Math.random() - 0.5) * 0.6;
+                this.wobbleSpeed = Math.random() * 0.03 + 0.01;
+                this.wobbleOffset = Math.random() * Math.PI * 2;
+                this.rotation = (Math.random() - 0.5) * 0.5;
+                this.color = heartColors[Math.floor(Math.random() * heartColors.length)];
+                this.isBokeh = Math.random() > 0.72; // Mix soft glowing circles with hearts
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.wobbleOffset += this.wobbleSpeed;
+                this.x += Math.sin(this.wobbleOffset) * 0.6 + this.speedX;
+
+                if (this.y < -40) {
+                    this.reset(false);
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillStyle = this.color;
+
+                if (this.isBokeh) {
+                    // Draw soft glowing circle
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size * 0.7, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // Draw smooth vector heart
+                    drawHeartShape(ctx, 0, 0, this.size);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        // Burst Heart Particle (triggered on unlock & "Send a Heart" click)
+        class BurstHeart {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 6 + 2;
+                this.vx = Math.cos(angle) * velocity;
+                this.vy = Math.sin(angle) * velocity - 2;
+                this.size = Math.random() * 14 + 8;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.018 + 0.012;
+                this.color = Math.random() > 0.35 ? '#ff5c8a' : '#ffffff';
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.08; // Gentle gravity
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                if (this.alpha <= 0) return;
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.translate(this.x, this.y);
+                ctx.fillStyle = this.color;
+                drawHeartShape(ctx, 0, 0, this.size);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function drawHeartShape(context, x, y, size) {
+            const topCurveHeight = size * 0.3;
+            context.beginPath();
+            context.moveTo(x, y + topCurveHeight);
+            // Left curve
+            context.bezierCurveTo(
+                x, y, 
+                x - size / 2, y, 
+                x - size / 2, y + topCurveHeight
+            );
+            // Bottom left
+            context.bezierCurveTo(
+                x - size / 2, y + (size + topCurveHeight) / 2, 
+                x, y + (size + topCurveHeight) / 1.4, 
+                x, y + size
+            );
+            // Bottom right
+            context.bezierCurveTo(
+                x, y + (size + topCurveHeight) / 1.4, 
+                x + size / 2, y + (size + topCurveHeight) / 2, 
+                x + size / 2, y + topCurveHeight
+            );
+            // Right curve
+            context.bezierCurveTo(
+                x + size / 2, y, 
+                x, y, 
+                x, y + topCurveHeight
+            );
+            context.closePath();
+        }
+
+        function triggerHeartExplosion(centerX, centerY, count = 35) {
+            for (let i = 0; i < count; i++) {
+                burstParticles.push(new BurstHeart(centerX, centerY));
+            }
+        }
+
+        // Initialize ambient floating hearts
+        const particleCount = window.innerWidth < 640 ? 28 : 48;
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new FloatingHeart(true));
+        }
+
+        function animateBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            for (let i = burstParticles.length - 1; i >= 0; i--) {
+                burstParticles[i].update();
+                burstParticles[i].draw();
+                if (burstParticles[i].alpha <= 0) {
+                    burstParticles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animateBackground);
+        }
+
+        /**
+         * 3. PASSWORD LOCK & UNLOCK INTERACTION
+         */
+        const lockScreen = document.getElementById('lockScreen');
+        const letterScreen = document.getElementById('letterScreen');
+        const unlockForm = document.getElementById('unlockForm');
+        const passwordInput = document.getElementById('passwordInput');
+        const errorMessage = document.getElementById('errorMessage');
+        const padlockShackle = document.getElementById('padlock-shackle');
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+        });
+
+        // Handle Password Submission
+        unlockForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const entered = passwordInput.value.trim().toUpperCase();
+
+            if (entered === SECRET_PASSWORD) {
+                // Correct Password!
+                errorMessage.classList.add('opacity-0');
+                padlockShackle.classList.add('unlocked-shackle');
+                
+                // Burst hearts from center of screen
+                triggerHeartExplosion(window.innerWidth / 2, window.innerHeight / 2, 55);
+
+                // Smooth transition to Love Letter
+                setTimeout(() => {
+                    lockScreen.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                    setTimeout(() => {
+                        lockScreen.classList.add('hidden');
+                        letterScreen.classList.remove('hidden');
+                        
+                        // Trigger reflow for smooth fade-in
+                        void letterScreen.offsetWidth;
+                        letterScreen.classList.remove('opacity-0', 'scale-95');
+                        
+                        startTypewriterLetter();
+                    }, 450);
+                }, 400);
+            } else {
+                // Wrong Password Shake & Error
+                errorMessage.classList.remove('opacity-0');
+                lockScreen.classList.remove('shake');
+                void lockScreen.offsetWidth; // reset animation
+                lockScreen.classList.add('shake');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+
+        // Lock Again Button
+        document.getElementById('lockAgainBtn').addEventListener('click', () => {
+            clearTimeout(typingTimeout);
+            letterScreen.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                letterScreen.classList.add('hidden');
+                lockScreen.classList.remove('hidden', 'pointer-events-none');
+                padlockShackle.classList.remove('unlocked-shackle');
+                passwordInput.value = '';
+                void lockScreen.offsetWidth;
+                lockScreen.classList.remove('opacity-0', 'scale-95');
+            }, 400);
+        });
+
+        /**
+         * 4. ROMANTIC TYPEWRITER EFFECT & LETTER CONTROLS
+         */
+        const displayRecipient = document.getElementById('displayRecipient');
+        const letterBody = document.getElementById('letterBody');
+        const displaySender = document.getElementById('displaySender');
+        const letterSignature = document.getElementById('letterSignature');
+        const skipTypingBtn = document.getElementById('skipTypingBtn');
+
+        let typingTimeout = null;
+        let charIndex = 0;
+
+        function startTypewriterLetter() {
+            clearTimeout(typingTimeout);
+            displayRecipient.textContent = currentLetter.recipient;
+            displaySender.textContent = currentLetter.sender;
+            letterBody.textContent = '';
+            letterBody.classList.add('typing-cursor');
+            letterSignature.classList.add('opacity-0');
+            skipTypingBtn.classList.remove('hidden');
+            charIndex = 0;
+
+            typeNextChar();
+        }
+
+        function typeNextChar() {
+            const fullText = currentLetter.message;
+            if (charIndex < fullText.length) {
+                letterBody.textContent += fullText.charAt(charIndex);
+                charIndex++;
+                const delay = fullText.charAt(charIndex - 1) === '\n' ? 180 : 28;
+                typingTimeout = setTimeout(typeNextChar, delay);
+            } else {
+                finishTyping();
+            }
+        }
+
+        function finishTyping() {
+            clearTimeout(typingTimeout);
+            letterBody.textContent = currentLetter.message;
+            letterBody.classList.remove('typing-cursor');
+            letterSignature.classList.remove('opacity-0');
+            skipTypingBtn.classList.add('hidden');
+        }
+
+        skipTypingBtn.addEventListener('click', finishTyping);
+
+        // Send a Heart Explosion Button
+        document.getElementById('heartBurstBtn').addEventListener('click', (e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            triggerHeartExplosion(rect.left + rect.width / 2, rect.top, 35);
+        });
+
+        /**
+         * 5. CUSTOMIZE LETTER MODAL LOGIC
+         */
+        const editModal = document.getElementById('editModal');
+        const editRecipientInput = document.getElementById('editRecipientInput');
+        const editMessageInput = document.getElementById('editMessageInput');
+        const editSenderInput = document.getElementById('editSenderInput');
+
+        document.getElementById('openEditModalBtn').addEventListener('click', () => {
+            editRecipientInput.value = currentLetter.recipient;
+            editMessageInput.value = currentLetter.message;
+            editSenderInput.value = currentLetter.sender;
+            editModal.classList.remove('hidden');
+            editModal.classList.add('flex');
+        });
+
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+            editModal.classList.remove('flex');
+        }
+
+        document.getElementById('closeEditModalBtn').addEventListener('click', closeEditModal);
+
+        document.getElementById('saveLetterBtn').addEventListener('click', () => {
+            currentLetter = {
+                recipient: editRecipientInput.value.trim() || DEFAULT_LETTER.recipient,
+                message: editMessageInput.value.trim() || DEFAULT_LETTER.message,
+                sender: editSenderInput.value.trim() || DEFAULT_LETTER.sender
+            };
+            localStorage.setItem('nano_love_letter', JSON.stringify(currentLetter));
+            closeEditModal();
+            startTypewriterLetter();
+            triggerHeartExplosion(window.innerWidth / 2, window.innerHeight / 2, 30);
+        });
+
+        document.getElementById('resetLetterBtn').addEventListener('click', () => {
+            currentLetter = { ...DEFAULT_LETTER };
+            localStorage.removeItem('nano_love_letter');
+            editRecipientInput.value = currentLetter.recipient;
+            editMessageInput.value = currentLetter.message;
+            editSenderInput.value = currentLetter.sender;
+        });
+
+        // Start animation loop on window load
+        window.onload = function() {
+            animateBackground();
+        };
+    </script>
+</body>
+</html>
